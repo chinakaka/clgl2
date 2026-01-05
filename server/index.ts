@@ -71,10 +71,16 @@ app.post('/api/register', async (req, res) => {
 
 // Forgot Password - Request Code
 app.post('/api/forgot-password', async (req, res) => {
-    const { email } = req.body;
+    const { identifier } = req.body;
     const db = getDB();
 
-    const user = await db.get('SELECT * FROM users WHERE email = ?', email);
+    const fs = await import('fs');
+    fs.appendFileSync('server_debug.txt', `\n[${new Date().toISOString()}] Request: ${identifier}\n`);
+
+    // Check by email or id
+    const user = await db.get('SELECT * FROM users WHERE email = ? OR id = ?', identifier, identifier);
+    fs.appendFileSync('server_debug.txt', `Found User: ${JSON.stringify(user)}\n`);
+
     if (!user) {
         // For security, don't reveal if user exists, but for demo we can be helpful or just pretend success
         return res.json({ success: true, message: 'Verification code sent (simulated)' });
@@ -82,19 +88,28 @@ app.post('/api/forgot-password', async (req, res) => {
 
     // Generate simple 6-digit code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
-    resetCodes.set(email, code);
+
+    // Store code mapped to the USER'S EMAIL (stable key)
+    resetCodes.set(user.email, code);
 
     // In a real app, send email here. For demo, return it in response (or log it).
-    console.log(`[DEMO] Reset Code for ${email}: ${code}`);
+    console.log(`[DEMO] Reset Code for ${user.email} (${user.name}): ${code}`);
     res.json({ success: true, message: 'Verification code sent', debugCode: code });
 });
 
 // Reset Password - Verify & Update
 app.post('/api/reset-password', async (req, res) => {
-    const { email, code, newPassword } = req.body;
+    const { identifier, code, newPassword } = req.body;
     const db = getDB();
 
-    const storedCode = resetCodes.get(email);
+    // Find user again to get email for code lookup
+    const user = await db.get('SELECT * FROM users WHERE email = ? OR id = ?', identifier, identifier);
+
+    if (!user) {
+        return res.status(400).json({ error: 'User not found' });
+    }
+
+    const storedCode = resetCodes.get(user.email);
     if (!storedCode || storedCode !== code) {
         return res.status(400).json({ error: 'Invalid or expired verification code' });
     }
@@ -103,8 +118,8 @@ app.post('/api/reset-password', async (req, res) => {
         return res.status(400).json({ error: 'New password is required' });
     }
 
-    await db.run('UPDATE users SET password = ? WHERE email = ?', newPassword, email);
-    resetCodes.delete(email); // Invalidate code
+    await db.run('UPDATE users SET password = ? WHERE id = ?', newPassword, user.id);
+    resetCodes.delete(user.email); // Invalidate code
 
     res.json({ success: true, message: 'Password updated successfully' });
 });

@@ -41,20 +41,20 @@ export const api = {
         return handleResponse(res);
     },
 
-    requestPasswordReset: async (email: string): Promise<{ success: boolean; message: string; debugCode?: string }> => {
+    requestPasswordReset: async (identifier: string): Promise<{ success: boolean; message: string; debugCode?: string }> => {
         const res = await fetch(`${API_BASE}/forgot-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ identifier })
         });
         return handleResponse(res);
     },
 
-    confirmPasswordReset: async (email: string, code: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+    confirmPasswordReset: async (identifier: string, code: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
         const res = await fetch(`${API_BASE}/reset-password`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, code, newPassword })
+            body: JSON.stringify({ identifier, code, newPassword })
         });
         return handleResponse(res);
     },
