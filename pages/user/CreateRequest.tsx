@@ -173,29 +173,26 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
           setStep(2);
 
           // Parse and set data
-          // req.data is already parsed by api.getRequest but let's be sure of structure
           const { purpose, urgency, budgetCap, notes, travelers: reqTravelers, ...restData } = req.data;
 
           setBaseData({
             purpose: purpose || '',
             urgency: urgency || Urgency.NORMAL,
             budgetCap: budgetCap || '',
-            notes: notes || req.data.notes || '', // Handle field location variation
+            notes: notes || req.data.notes || '',
           });
 
           if (reqTravelers && Array.isArray(reqTravelers)) {
             setTravelers(reqTravelers);
           } else if (req.data.travelers) {
-            // Fallback if inside data
             setTravelers(req.data.travelers);
           }
 
-          // Set form data for specific type (flight, hotel, etc)
           setFormData(restData);
         }
       }).catch(err => {
         console.error(err);
-        alert('加载订单失败');
+        alert('加载订单失败: ' + (err.message || '未知错误'));
         navigate('/user/dashboard');
       });
     }

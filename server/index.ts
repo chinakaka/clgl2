@@ -264,6 +264,67 @@ app.post('/api/requests', async (req, res) => {
     }
 });
 
+// Update Request Data (for User editing)
+app.put('/api/requests/:id', async (req, res) => {
+    try {
+        const { userId, data, travelers } = req.body;
+        const reqId = req.params.id;
+        const db = getDB();
+
+        const request = await db.get('SELECT * FROM requests WHERE id = ?', reqId);
+        if (!request) return res.status(404).json({ error: '订单未找到' });
+
+        // Only allow owner to update
+        if (request.userId !== userId) {
+            return res.status(403).json({ error: '无权修改此订单' });
+        }
+
+        // Only allow update if status is SUBMITTED or INFO_NEEDED
+        if (request.status !== RequestStatus.SUBMITTED && request.status !== RequestStatus.INFO_NEEDED) {
+            return res.status(400).json({ error: `当前状态(${request.status})不允许修改` });
+        }
+
+        const newData = JSON.parse(request.data);
+        // Merge base fields if updated
+        if (data.purpose) newData.purpose = data.purpose;
+        if (data.urgency) newData.urgency = data.urgency;
+        if (data.budgetCap) newData.budgetCap = data.budgetCap;
+        if (data.notes) newData.notes = data.notes;
+
+        // Scenario fields merging logic
+        // We trust the frontend sends the relevant scenario fields in `data`
+        // Travelers are handled separately or inside data depending on structure.
+        // The API call sends `data` (which includes scenario fields) and `travelers` explicitly if separated.
+        // Let's assume `data` contains scenario fields and `travelers` contains the array.
+
+        const fullNewData = { ...newData, ...data, travelers };
+
+        let history = JSON.parse(request.history);
+        history.push({
+            id: generateId('HIST'),
+            action: 'UPDATED',
+            actor: request.userName,
+            timestamp: new Date().toISOString()
+        });
+
+        await db.run(
+            'UPDATE requests SET data = ?, updatedAt = ?, history = ? WHERE id = ?',
+            JSON.stringify(fullNewData), new Date().toISOString(), JSON.stringify(history), reqId
+        );
+
+        const updated = await db.get('SELECT * FROM requests WHERE id = ?', reqId);
+        res.json({
+            ...updated,
+            data: JSON.parse(updated.data),
+            comments: JSON.parse(updated.comments),
+            history: JSON.parse(updated.history)
+        });
+    } catch (error: any) {
+        console.error('Update Request Error:', error);
+        res.status(500).json({ error: '服务器内部错误: ' + error.message });
+    }
+});
+
 // Update Status
 app.put('/api/requests/:id/status', async (req, res) => {
     const { status, userId, userName, details } = req.body; // userId/Name of the actor
