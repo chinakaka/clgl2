@@ -174,6 +174,13 @@ export const api = {
         });
     },
 
+    deleteRequest: async (id: string, userId: string): Promise<void> => {
+        const res = await fetch(`${API_BASE}/requests/${id}?userId=${userId}`, {
+            method: 'DELETE'
+        });
+        return handleResponse(res);
+    },
+
     // --- Reimbursement Service Logic ---
 
     getReimbursements: async (user?: User): Promise<Reimbursement[]> => {

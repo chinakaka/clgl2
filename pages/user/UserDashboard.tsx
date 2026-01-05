@@ -131,8 +131,40 @@ const UserDashboard: React.FC<UserDashboardProps> = ({ user }) => {
                       </span>
                     </div>
                   </div>
-                  <div className="flex items-center text-gray-400 group-hover:text-apple-blue transition-colors group-hover:translate-x-1 duration-200">
-                    <span className="text-sm font-medium">查看详情 &rarr;</span>
+                  <div className="flex items-center space-x-4">
+                    {/* Actions for active requests */}
+                    {(req.status === RequestStatus.SUBMITTED || req.status === RequestStatus.INFO_NEEDED) && (
+                      <div className="flex items-center space-x-2 mr-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/user/edit/${req.id}`);
+                          }}
+                          className="px-3 py-1 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 text-sm font-medium transition-colors shadow-sm"
+                        >
+                          修改
+                        </button>
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (window.confirm('确定要删除此订单吗？此操作无法撤销。')) {
+                              try {
+                                await api.deleteRequest(req.id, user.id);
+                                setRequests(prev => prev.filter(r => r.id !== req.id));
+                              } catch (err: any) {
+                                alert(err.message || '删除失败');
+                              }
+                            }
+                          }}
+                          className="px-3 py-1 bg-white border border-gray-200 text-gray-600 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 text-sm font-medium transition-colors shadow-sm"
+                        >
+                          删除
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex items-center text-gray-400 group-hover:text-apple-blue transition-colors group-hover:translate-x-1 duration-200">
+                      <span className="text-sm font-medium">查看详情 &rarr;</span>
+                    </div>
                   </div>
                 </div>
               </div>

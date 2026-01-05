@@ -264,6 +264,43 @@ app.post('/api/requests', async (req, res) => {
     }
 });
 
+// Delete Request (for User deleting their own request)
+app.delete('/api/requests/:id', async (req, res) => {
+    try {
+        // We might get userId from query or body effectively, or we depend on a middleware for auth.
+        // Here we'll expect userId in the query string or body to verify ownership, 
+        // strictly speaking REST DELETE doesn't usually have body, so let's check query or header.
+        // For simplicity in this demo, we'll assume the frontend sends userId in query params or headers?
+        // Let's rely on a query param `userId` for ownership check as we did in getRequests.
+        const userId = req.query.userId as string;
+        const reqId = req.params.id;
+        const db = getDB();
+
+        if (!userId) {
+            return res.status(400).json({ error: 'Missing userId for verification' });
+        }
+
+        const request = await db.get('SELECT * FROM requests WHERE id = ?', reqId);
+        if (!request) return res.status(404).json({ error: '订单未找到' });
+
+        if (request.userId !== userId) {
+            return res.status(403).json({ error: '无权删除此订单' });
+        }
+
+        // Only allow delete if status is SUBMITTED or INFO_NEEDED
+        if (request.status !== RequestStatus.SUBMITTED && request.status !== RequestStatus.INFO_NEEDED) {
+            return res.status(400).json({ error: `当前状态(${request.status})不可删除，请联系管理员` });
+        }
+
+        await db.run('DELETE FROM requests WHERE id = ?', reqId);
+
+        res.json({ success: true, message: '订单已删除' });
+    } catch (error: any) {
+        console.error('Delete Request Error:', error);
+        res.status(500).json({ error: '服务器内部错误: ' + error.message });
+    }
+});
+
 // Update Request Data (for User editing)
 app.put('/api/requests/:id', async (req, res) => {
     try {
