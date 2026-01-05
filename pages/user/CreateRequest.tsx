@@ -164,7 +164,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
           }
 
           if (req.status !== 'SUBMITTED' && req.status !== 'INFO_NEEDED') {
-            alert('当前状态不可修改');
+            alert(`当前状态(${req.status})不可修改，仅允许修改"待受理"或"需补全信息"的订单`);
             navigate('/user/dashboard');
             return;
           }
@@ -498,10 +498,11 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
         setLoading(false);
         navigate('/user/dashboard');
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
       setLoading(false);
-      alert(id ? '修改失败，请重试' : '提交失败，请重试');
+      const action = id ? '修改' : '提交';
+      alert(`${action}失败: ${error.message || '请重试'}`);
     }
   };
 
