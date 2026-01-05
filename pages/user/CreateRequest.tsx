@@ -866,12 +866,19 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
                   </select>
                 </div>
                 <div className="col-span-1 md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">已选酒店 (自动填充)</label>
+                  <label className="block text-sm font-medium text-gray-700">已选酒店 (可自动填充或手动输入)</label>
                   <div className="mt-1 flex rounded-md shadow-sm">
                     <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
                       <Building className="w-4 h-4" />
                     </span>
-                    <input type="text" name="locationPreference" value={formData.locationPreference || ''} onChange={handleInputChange} className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 sm:text-sm bg-gray-50" readOnly placeholder="在上方搜索结果中点击'查看详情'选择" />
+                    <input
+                      type="text"
+                      name="locationPreference"
+                      value={formData.locationPreference || ''}
+                      onChange={handleInputChange}
+                      className="flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md border border-gray-300 sm:text-sm"
+                      placeholder="在上方搜索结果中点击'查看详情'选择，或直接输入"
+                    />
                   </div>
                 </div>
               </div>
