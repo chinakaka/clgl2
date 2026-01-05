@@ -154,7 +154,44 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
   useEffect(() => {
     api.getUserProfile(user.id).then(setUserProfile);
   }, [user.id]);
-  // ... (lines 158-196 skipped for brevity)
+  const handleTypeSelect = (type: RequestType) => {
+    setSelectedType(type);
+    setStep(2);
+    // Reset search state when type changes
+    setFlightResults([]);
+    setShowResults(false);
+    setHotelResults([]);
+    setShowHotelResults(false);
+
+    // Initialize defaults based on type
+    if (type === RequestType.FLIGHT) {
+      setFormData({
+        tripType: 'ONE_WAY',
+        cabinClass: 'ECONOMY',
+        departureCity: '',
+        arrivalCity: '',
+        departureDate: '',
+        returnDate: ''
+      });
+    } else if (type === RequestType.HOTEL) {
+      // Set default dates (Today and Tomorrow)
+      const today = new Date().toISOString().split('T')[0];
+      const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+
+      setFormData({
+        city: '',
+        checkInDate: today,
+        checkOutDate: tomorrow,
+        roomType: '',
+        starRating: 'Any',
+        locationPreference: '',
+        guestCount: 1,
+        roomCount: 1
+      });
+    } else {
+      setFormData({});
+    }
+  };
   const addTraveler = () => {
     setTravelers([...travelers, { name: '', idType: '身份证', idNumber: '', idExpiryDate: '', phone: '' }]);
   };
@@ -1035,74 +1072,80 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
                         <option value="港澳通行证">港澳通行证</option>
                       </select>
                     </div>
-                    className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
-                    placeholder="证件号"
-                    required
-                    />
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">证件号码</label>
+                      <input
+                        type="text"
+                        value={t.idNumber}
+                        onChange={(e) => updateTraveler(index, 'idNumber', e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        placeholder="证件号"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">证件有效期</label>
+                      <input
+                        type="date"
+                        value={t.idExpiryDate || ''}
+                        onChange={(e) => updateTraveler(index, 'idExpiryDate', e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        placeholder="可选"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">手机号</label>
+                      <input
+                        type="text"
+                        value={t.phone}
+                        onChange={(e) => updateTraveler(index, 'phone', e.target.value)}
+                        className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
+                        placeholder="联系电话"
+                        required
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">证件有效期</label>
-                    <input
-                      type="date"
-                      value={t.idExpiryDate || ''}
-                      onChange={(e) => updateTraveler(index, 'idExpiryDate', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
-                      placeholder="可选"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">手机号</label>
-                    <input
-                      type="text"
-                      value={t.phone}
-                      onChange={(e) => updateTraveler(index, 'phone', e.target.value)}
-                      className="w-full rounded-md border-gray-300 shadow-sm p-2 border text-sm"
-                      placeholder="联系电话"
-                      required
-                    />
-                  </div>
-                </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Specific Info */}
+          <section className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2">预定详情</h3>
+            {renderScenarioForm()}
+          </section>
+
+          {/* Notes */}
+          <section className="space-y-4">
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2">备注说明</h3>
+            <textarea
+              value={baseData.notes}
+              onChange={(e) => setBaseData({ ...baseData, notes: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border h-24"
+              placeholder="如有特殊需求请在此填写..."
+            />
+          </section>
+
+          <div className="pt-6 border-t border-gray-100 flex items-center justify-end space-x-4">
+            <button
+              type="button"
+              onClick={() => setStep(1)}
+              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
+            >
+              取消
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm flex items-center"
+            >
+              {loading ? '提交中...' : '提交需求'}
+              {!loading && <Check className="w-4 h-4 ml-2" />}
+            </button>
           </div>
-        </section>
-
-        {/* Specific Info */}
-        <section className="space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2">预定详情</h3>
-          {renderScenarioForm()}
-        </section>
-
-        {/* Notes */}
-        <section className="space-y-4">
-          <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wider border-b pb-2">备注说明</h3>
-          <textarea
-            value={baseData.notes}
-            onChange={(e) => setBaseData({ ...baseData, notes: e.target.value })}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 border h-24"
-            placeholder="如有特殊需求请在此填写..."
-          />
-        </section>
-
-        <div className="pt-6 border-t border-gray-100 flex items-center justify-end space-x-4">
-          <button
-            type="button"
-            onClick={() => setStep(1)}
-            className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
-          >
-            取消
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm flex items-center"
-          >
-            {loading ? '提交中...' : '提交需求'}
-            {!loading && <Check className="w-4 h-4 ml-2" />}
-          </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
     </div >
   );
 };
