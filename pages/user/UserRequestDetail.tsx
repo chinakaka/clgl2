@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import { TravelRequest, User, RequestStatus, StatusTranslation } from '../../types';
+import { TravelRequest, User, RequestStatus, StatusTranslation, FieldTranslation } from '../../types';
 import { ArrowLeft, MessageSquare, Download, AlertCircle } from 'lucide-react';
 
 interface UserRequestDetailProps {
@@ -73,7 +73,9 @@ const UserRequestDetail: React.FC<UserRequestDetailProps> = ({ user }) => {
                                 if (key === 'travelers' || typeof value === 'object') return null;
                                 return (
                                     <div key={key}>
-                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-1">
+                                            {FieldTranslation[key] || key.replace(/([A-Z])/g, ' $1').trim()}
+                                        </p>
                                         <p className="text-gray-900 font-medium break-words">{String(value)}</p>
                                     </div>
                                 );

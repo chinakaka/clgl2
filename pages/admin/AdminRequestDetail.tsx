@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
-import { TravelRequest, User, RequestStatus, StatusTranslation, TypeTranslation } from '../../types';
+import { TravelRequest, User, RequestStatus, StatusTranslation, TypeTranslation, FieldTranslation } from '../../types';
 import { ArrowLeft, MessageSquare, Check, X, AlertTriangle, Upload, FileCheck, FileText, Loader2, Trash2, Edit, Save, Plus } from 'lucide-react';
 
 interface AdminRequestDetailProps {
@@ -257,7 +257,7 @@ const AdminRequestDetail: React.FC<AdminRequestDetailProps> = ({ user }) => {
                                 if (key === 'travelers' || typeof value === 'object') return null;
                                 return (
                                     <div key={key}>
-                                        <p className="text-gray-500 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                                        <p className="text-gray-500 capitalize">{FieldTranslation[key] || key.replace(/([A-Z])/g, ' $1').trim()}</p>
                                         <p className="font-medium text-gray-900">{String(value)}</p>
                                     </div>
                                 );

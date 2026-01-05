@@ -226,3 +226,37 @@ export interface Reimbursement {
   approvedBy?: string;
   rejectionReason?: string;
 }
+
+export const FieldTranslation: Record<string, string> = {
+  purpose: 'Travel Purpose / 出行目的',
+  urgency: 'Urgency / 紧急程度',
+  notes: 'Notes / 备注',
+  city: 'City / 城市',
+  checkInDate: 'Check-in Date / 入住日期',
+  checkOutDate: 'Check-out Date / 离店日期',
+  roomCount: 'Room Count / 房间数',
+  guestCount: 'Guest Count / 入住人数',
+  roomType: 'Room Type / 房型',
+  starRating: 'Star Rating / 星级要求',
+  locationPreference: 'Location Preference / 位置偏好',
+  tripType: 'Trip Type / 行程类型',
+  departureCity: 'Departure City / 出发城市',
+  arrivalCity: 'Arrival City / 到达城市',
+  departureDate: 'Departure Date / 出发日期',
+  returnDate: 'Return Date / 返回日期',
+  preferredTime: 'Preferred Time / 期望时间',
+  cabinClass: 'Cabin Class / 舱位',
+  airlinePreference: 'Airline Preference / 航司偏好',
+  flightNumber: 'Flight Number / 航班号',
+  pickupCity: 'Pickup City / 取车城市',
+  pickupDate: 'Pickup Date / 取车日期',
+  carType: 'Car Type / 车型',
+  drivingLicense: 'Driving License / 驾照要求',
+  usageDate: 'Usage Date / 用车日期',
+  startTime: 'Start Time / 开始时间',
+  endTime: 'End Time / 结束时间',
+  passengerCount: 'Passenger Count / 乘车人数',
+  routeDescription: 'Route Description / 行程描述',
+  description: 'Description / 描述',
+  requirements: 'Requirements / 需求详情'
+};
