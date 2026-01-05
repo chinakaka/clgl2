@@ -51,9 +51,19 @@ const UserRequestDetail: React.FC<UserRequestDetailProps> = ({ user }) => {
                                 <h1 className="text-xl font-bold text-gray-900">{request.data.purpose}</h1>
                                 <p className="text-sm text-gray-500">单号: {request.id}</p>
                             </div>
-                            <div className={`px-3 py-1 rounded-full text-sm font-semibold 
-                            ${request.status === RequestStatus.SUCCESS ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
-                                {StatusTranslation[request.status]}
+                            <div className="flex items-center space-x-3">
+                                {(request.status === RequestStatus.SUBMITTED || request.status === RequestStatus.INFO_NEEDED) && (
+                                    <button
+                                        onClick={() => navigate(`/user/edit/${request.id}`)}
+                                        className="px-4 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-50 shadow-sm"
+                                    >
+                                        修改申请
+                                    </button>
+                                )}
+                                <div className={`px-3 py-1 rounded-full text-sm font-semibold 
+                                ${request.status === RequestStatus.SUCCESS ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                                    {StatusTranslation[request.status]}
+                                </div>
                             </div>
                         </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { RequestType, Urgency, User, Traveler, UserProfile } from '../../types';
 import { api } from '../../services/api';
 import { Plane, Building, Car, Bus, ArrowLeft, Check, ChevronRight, UserPlus, Trash2, User as UserIcon, HelpCircle, BookUser, Search, Loader2, Tag, ArrowRight, MapPin, Star, Calendar, Users, ThumbsUp } from 'lucide-react';
@@ -116,6 +116,7 @@ const getRatingBadge = (rating: number) => {
 
 const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
   const [step, setStep] = useState<1 | 2>(1);
   const [selectedType, setSelectedType] = useState<RequestType | null>(null);
   const [loading, setLoading] = useState(false);
@@ -149,6 +150,57 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
     tripType: 'ONE_WAY',
     cabinClass: 'ECONOMY'
   });
+
+  // Load existing request if editing
+  useEffect(() => {
+    if (id) {
+      api.getRequestById(id).then(req => {
+        if (req) {
+          // Check permission and status
+          if (req.userId !== user.id) {
+            alert('无权修改此订单');
+            navigate('/user/dashboard');
+            return;
+          }
+
+          if (req.status !== 'SUBMITTED' && req.status !== 'INFO_NEEDED') {
+            alert('当前状态不可修改');
+            navigate('/user/dashboard');
+            return;
+          }
+
+          setSelectedType(req.type);
+          setStep(2);
+
+          // Parse and set data
+          // req.data is already parsed by api.getRequest but let's be sure of structure
+          const { purpose, urgency, budgetCap, notes, travelers: reqTravelers, ...restData } = req.data;
+
+          setBaseData({
+            purpose: purpose || '',
+            urgency: urgency || Urgency.NORMAL,
+            budgetCap: budgetCap || '',
+            notes: notes || req.data.notes || '', // Handle field location variation
+          });
+
+          if (reqTravelers && Array.isArray(reqTravelers)) {
+            setTravelers(reqTravelers);
+          } else if (req.data.travelers) {
+            // Fallback if inside data
+            setTravelers(req.data.travelers);
+          }
+
+          // Set form data for specific type (flight, hotel, etc)
+          setFormData(restData);
+        }
+      }).catch(err => {
+        console.error(err);
+        alert('加载订单失败');
+        navigate('/user/dashboard');
+      });
+    }
+  }, [id, user.id, navigate]);
+
 
   // Load profile for contacts
   useEffect(() => {
@@ -423,31 +475,33 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedType) return;
-
-    const invalidTraveler = travelers.find(t => !t.name || !t.idNumber || !t.phone);
-    if (invalidTraveler) {
-      alert('请完善所有出行人的姓名、证件号和手机号');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const finalData = {
+      const fullData = {
         ...baseData,
         ...formData,
-        budgetCap: baseData.budgetCap ? parseFloat(baseData.budgetCap) : undefined,
-        travelers: travelers
+        travelers
       };
 
-      await api.createRequest(user, selectedType, finalData);
-      navigate('/user/dashboard');
-    } catch (err) {
-      console.error(err);
-      alert('提交失败');
-    } finally {
+      if (id) {
+        // Update existing
+        await api.updateRequest(id, user, fullData);
+        // Assuming api.updateRequest returns the updated object or we just trust it worked
+      } else {
+        // Create new
+        await api.createRequest(user, selectedType!, fullData);
+      }
+
+      // Simulate a small delay for better UX
+      setTimeout(() => {
+        setLoading(false);
+        navigate('/user/dashboard');
+      }, 1000);
+    } catch (error) {
+      console.error(error);
       setLoading(false);
+      alert(id ? '修改失败，请重试' : '提交失败，请重试');
     }
   };
 
@@ -889,7 +943,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
     return (
       <div className="max-w-4xl mx-auto space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">新建差旅需求</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{id ? '修改差旅需求' : '新建差旅需求'}</h1>
           <p className="text-gray-500">请选择您需要预定的业务类型。</p>
         </div>
 
@@ -1140,7 +1194,7 @@ const CreateRequest: React.FC<CreateRequestProps> = ({ user }) => {
               disabled={loading}
               className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium shadow-sm flex items-center"
             >
-              {loading ? '提交中...' : '提交需求'}
+              {loading ? '提交中...' : (id ? '保存修改' : '提交需求')}
               {!loading && <Check className="w-4 h-4 ml-2" />}
             </button>
           </div>

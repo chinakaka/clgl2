@@ -105,13 +105,28 @@ export const api = {
         return handleResponse(res);
     },
 
-    updateStatus: async (reqId: string, status: RequestStatus, user: User, note?: string): Promise<TravelRequest> => {
-        const res = await fetch(`${API_BASE}/requests/${reqId}/status`, {
+    updateRequestStatus: (id: string, status: RequestStatus, user: User, details?: any) => {
+        return fetch(`${API_BASE}/requests/${id}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status, userId: user.id, userName: user.name, details: note })
-        });
-        return handleResponse(res);
+            body: JSON.stringify({
+                status,
+                userId: user.id,
+                userName: user.name,
+                details
+            })
+        }).then(res => res.json());
+    },
+
+    updateRequest: (id: string, user: User, data: any) => {
+        return fetch(`${API_BASE}/requests/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                userId: user.id,
+                ...data
+            })
+        }).then(res => res.json());
     },
 
     addComment: async (reqId: string, user: User, content: string): Promise<Comment> => {

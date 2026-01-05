@@ -61,6 +61,7 @@ const App: React.FC = () => {
                 <Routes>
                   <Route path="dashboard" element={<UserDashboard user={user} />} />
                   <Route path="create" element={<CreateRequest user={user} />} />
+                  <Route path="edit/:id" element={<CreateRequest user={user} />} />
                   <Route path="request/:id" element={<UserRequestDetail user={user} />} />
                   <Route path="reimbursements" element={<UserReimbursement user={user} />} />
                   <Route path="profile" element={<UserProfile user={user} />} />
