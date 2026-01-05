@@ -6,8 +6,8 @@ import path from 'path';
 // Initial data (same as mockService to bootstrap)
 // We will insert these if the DB is empty
 const INITIAL_USERS = [
-  { id: 'admin', name: '系统管理员', email: 'admin', role: 'ADMIN', password: 'password' }, // Default password
-  { id: 'u1', name: '王员工', email: 'user@corp.com', role: 'USER', password: 'password' },
+    { id: 'admin', name: '系统管理员', email: 'admin', role: 'ADMIN', password: 'password' }, // Default password
+    { id: 'u1', name: '王员工', email: 'user@corp.com', role: 'USER', password: 'password' },
 ];
 
 let db: Database;
@@ -58,6 +58,12 @@ export const initializeDB = async () => {
             createdAt TEXT NOT NULL,
             approvedBy TEXT,
             rejectionReason TEXT,
+            FOREIGN KEY (userId) REFERENCES users(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS user_profiles (
+            userId TEXT PRIMARY KEY,
+            data TEXT, -- JSON string of UserProfile
             FOREIGN KEY (userId) REFERENCES users(id)
         );
     `);

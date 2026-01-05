@@ -60,33 +60,24 @@ export const api = {
     },
 
     getUserProfile: async (userId: string): Promise<UserProfile> => {
-        // Current server API does not implement profile persistence yet, returning default for now or implementing it?
-        // The plan said "Implement User API (Dashboard stats, etc.)". I skipped specific profile endpoint in server/index.ts initially (except simple user fields).
-        // I should add profile support to server or just return default here for now to pass "mock" stage.
-        // For specific task "Backend using Node+Express", I should probably implement it.
-        // I'll return a default if 404 or just mock it client side until server has it?
-        // No, I'll update server/index.ts to have a simple profile table or just store it in user table in JSON?
-        // Ideally I add a profiles table. But to save time and complexity for this "refactor", 
-        // I will mock it here OR implement it. User explicitly asked for "Backend Node.js + Express".
-        // I'll just return default empty profile for now as the server doesn't store detailed profile.
-
-        return {
-            chineseName: '',
-            englishName: '',
-            nationality: '中国大陆',
-            gender: '男',
-            birthday: '',
-            birthPlace: '',
-            phone: '',
-            email: '',
-            documents: [],
-            contacts: []
-        };
+        const res = await fetch(`${API_BASE}/users/${userId}/profile`);
+        if (res.status === 404) {
+            // Return defaults if not found (though backend handles 404 for user existence, 
+            // for profile data it returns merged data even if empty profile).
+            // But if user doesn't exist at all, handle it?
+            // Backend returns 404 if user not in users table.
+            throw new Error('User not found');
+        }
+        return handleResponse(res);
     },
 
     updateUserProfile: async (userId: string, profile: UserProfile): Promise<void> => {
-        // No-op for now as server doesn't have profile endpoint.
-        console.warn("Profile update not implemented on server yet");
+        const res = await fetch(`${API_BASE}/users/${userId}/profile`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(profile)
+        });
+        return handleResponse(res);
     },
 
     getRequests: async (user?: User): Promise<TravelRequest[]> => {

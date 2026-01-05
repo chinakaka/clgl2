@@ -69,6 +69,62 @@ app.post('/api/register', async (req, res) => {
     }
 });
 
+// User Profile - Get
+app.get('/api/users/:id/profile', async (req, res) => {
+    const userId = req.params.id;
+    const db = getDB();
+
+    const user = await db.get('SELECT * FROM users WHERE id = ?', userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    const profile = await db.get('SELECT data FROM user_profiles WHERE userId = ?', userId);
+    let profileData = {};
+    if (profile && profile.data) {
+        try {
+            profileData = JSON.parse(profile.data);
+        } catch (e) {
+            console.error('Failed to parse profile JSON', e);
+        }
+    }
+
+    // Merge basic info from users table
+    const fullProfile = {
+        chineseName: user.name, // Default to name in users table if not in profile
+        email: user.email,
+        documents: [],
+        contacts: [],
+        ...profileData
+    };
+
+    res.json(fullProfile);
+});
+
+// User Profile - Update
+app.put('/api/users/:id/profile', async (req, res) => {
+    const userId = req.params.id;
+    const profileData = req.body;
+    const db = getDB();
+
+    const user = await db.get('SELECT * FROM users WHERE id = ?', userId);
+    if (!user) return res.status(404).json({ error: 'User not found' });
+
+    // 1. Update basic info in users table if changed (optional, but good to sync)
+    // For now we only trust 'name' (chineseName) mapping? Let's just update 'name' if chineseName is provided.
+    if (profileData.chineseName) {
+        await db.run('UPDATE users SET name = ? WHERE id = ?', profileData.chineseName, userId);
+    }
+
+    // 2. Save full blob to user_profiles
+    const jsonStr = JSON.stringify(profileData);
+    await db.run(
+        'INSERT OR REPLACE INTO user_profiles (userId, data) VALUES (?, ?)',
+        userId, jsonStr
+    );
+
+    res.json({ success: true });
+});
+
+
 // Forgot Password - Request Code
 app.post('/api/forgot-password', async (req, res) => {
     const { identifier } = req.body;

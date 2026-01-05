@@ -63,6 +63,7 @@ export interface Traveler {
   name: string;
   idType: string;
   idNumber: string;
+  idExpiryDate?: string;
   phone: string;
 }
 
@@ -165,7 +166,7 @@ export interface TravelRequest {
   createdAt: string;
   updatedAt: string;
   data: RequestDetails;
-  
+
   // Admin fields
   assignedTo?: string; // Admin ID
   bookingResult?: {
@@ -176,7 +177,7 @@ export interface TravelRequest {
     files?: string[]; // URLs to attachments
     failureReason?: string;
   };
-  
+
   comments: Comment[];
   history: AuditLog[];
 }

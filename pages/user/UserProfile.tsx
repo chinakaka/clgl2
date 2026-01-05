@@ -326,7 +326,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                     <option value="港澳通行证">港澳通行证</option>
                   </select>
                 </div>
-                <div className="md:col-span-4">
+                <div className="md:col-span-3">
                   <label className="block text-xs text-gray-400 mb-1">证件号码</label>
                   <input
                     type="text"
@@ -337,6 +337,15 @@ const UserProfile: React.FC<UserProfileProps> = ({ user }) => {
                   />
                 </div>
                 <div className="md:col-span-3">
+                  <label className="block text-xs text-gray-400 mb-1">有效期</label>
+                  <input
+                    type="date"
+                    value={contact.idExpiryDate || ''}
+                    onChange={(e) => updateContact(index, 'idExpiryDate', e.target.value)}
+                    className="w-full bg-transparent border-b md:border-none border-gray-200 focus:ring-0 p-0 text-gray-900 pb-2 md:pb-0"
+                  />
+                </div>
+                <div className="md:col-span-2">
                   <label className="block text-xs text-gray-400 mb-1">手机号</label>
                   <input
                     type="text"
