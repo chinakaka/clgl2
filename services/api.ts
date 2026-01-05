@@ -124,7 +124,8 @@ export const api = {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 userId: user.id,
-                ...data
+                data: data,
+                travelers: data.travelers
             })
         }).then(res => res.json());
     },
