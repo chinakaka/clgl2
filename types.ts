@@ -258,5 +258,11 @@ export const FieldTranslation: Record<string, string> = {
   passengerCount: 'Passenger Count / 乘车人数',
   routeDescription: 'Route Description / 行程描述',
   description: 'Description / 描述',
-  requirements: 'Requirements / 需求详情'
+  requirements: 'Requirements / 需求详情',
+  // Traveler Fields
+  name: 'Name / 姓名',
+  idType: 'ID Type / 证件类型',
+  idNumber: 'ID Number / 证件号码',
+  idExpiryDate: 'ID Expiry Date / 证件有效期',
+  phone: 'Phone / 手机号'
 };

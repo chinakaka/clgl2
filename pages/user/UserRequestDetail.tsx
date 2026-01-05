@@ -83,6 +83,37 @@ const UserRequestDetail: React.FC<UserRequestDetailProps> = ({ user }) => {
                         </div>
                     </div>
 
+                    {/* Travelers List */}
+                    <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div className="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                            <h3 className="font-bold text-gray-900">Travelers / 出行人员详情</h3>
+                        </div>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-100">
+                                <thead className="bg-gray-50">
+                                    <tr>
+                                        {['name', 'idType', 'idNumber', 'idExpiryDate', 'phone'].map(key => (
+                                            <th key={key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                {FieldTranslation[key] || key}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-100">
+                                    {request.data.travelers.map((traveler, index) => (
+                                        <tr key={index} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{traveler.name}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{traveler.idType}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{traveler.idNumber}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{traveler.idExpiryDate || '-'}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{traveler.phone}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
                     {/* Attachments if Success */}
                     {request.status === RequestStatus.SUCCESS && request.bookingResult && (
                         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
