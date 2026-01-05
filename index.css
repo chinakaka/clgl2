@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+body {
+    background-color: #F5F5F7;
+    color: #111827;
+    /* gray-900 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism Utilities */
+.glass {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20;
+}
+
+.glass-nav {
+    @apply bg-white/80 backdrop-blur-lg border-t border-gray-200;
+}
