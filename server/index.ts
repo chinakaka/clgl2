@@ -7,7 +7,18 @@ import { RequestStatus, Role } from '../types';
 const app = express();
 const PORT = 3000;
 
-app.use(cors());
+// Configure CORS with specific options for production
+app.use(cors({
+    origin: [
+        'http://localhost:5173',
+        'https://clgl2.pages.dev',
+        'https://clxt.ynctc.net',
+        /^https:\/\/.*\.pages\.dev$/ // Allow preview deployments
+    ],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
 
 // Initialize DB
