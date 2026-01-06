@@ -1,12 +1,23 @@
-- name: Deploy via SSH
-  uses: appleboy/ssh-action@v1.0.3
-  with:
-    host: ${{ secrets.VM_HOST }}
-    username: ${{ secrets.VM_USER }}
-    key: ${{ secrets.VM_SSH_KEY }}
-    port: 22
-    script: |
-      cd /root/clgl2
-      git pull --ff-only
-      npm install --omit=dev
-      pm2 restart tripflow-api
+name: Deploy backend to GCP VM
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add SSH key to agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VM_SSH_KEY }}
+
+      - name: Add VM to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.VM_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        run: |
+          ssh -o BatchMode=yes ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "/root/deploy.sh"
