@@ -1,20 +1,12 @@
-name: Deploy backend to GCP VM
-
-on:
-  push:
-    branches: ["main"]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
-          port: 22
-          script: |
-            set -e
-            /root/deploy.sh
+- name: Deploy via SSH
+  uses: appleboy/ssh-action@v1.0.3
+  with:
+    host: ${{ secrets.VM_HOST }}
+    username: ${{ secrets.VM_USER }}
+    key: ${{ secrets.VM_SSH_KEY }}
+    port: 22
+    script: |
+      cd /root/clgl2
+      git pull --ff-only
+      npm install --omit=dev
+      pm2 restart tripflow-api
