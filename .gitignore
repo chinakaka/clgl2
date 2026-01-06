@@ -4,3 +4,6 @@ dist
 .DS_Store
 # server/database.sqlite
 server_debug.txt
+# SQLite database (server persistent data)
+server/database.sqlite
+server/*.sqlite
