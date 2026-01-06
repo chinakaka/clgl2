@@ -44,6 +44,7 @@ const UserReimbursement: React.FC<UserReimbursementProps> = ({ user }) => {
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.amount || !formData.description) return;
@@ -76,6 +77,18 @@ const UserReimbursement: React.FC<UserReimbursementProps> = ({ user }) => {
     });
     setAttachments([]);
     fetchData();
+  };
+
+  const handleDelete = async (id: string) => {
+    if (confirm('确定要删除这条报销记录吗？')) {
+      try {
+        await api.deleteReimbursement(id, user.id);
+        fetchData();
+      } catch (error) {
+        console.error('Delete failed:', error);
+        alert('删除失败，请重试');
+      }
+    }
   };
 
   const getStatusBadge = (status: ReimbursementStatus) => {
@@ -125,6 +138,7 @@ const UserReimbursement: React.FC<UserReimbursementProps> = ({ user }) => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">附件</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">金额</th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">状态</th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">操作</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -151,6 +165,16 @@ const UserReimbursement: React.FC<UserReimbursementProps> = ({ user }) => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right flex justify-end">
                       {getStatusBadge(r.status)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      {r.status === ReimbursementStatus.PENDING && (
+                        <button
+                          onClick={() => handleDelete(r.id)}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          删除
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -273,3 +297,4 @@ const UserReimbursement: React.FC<UserReimbursementProps> = ({ user }) => {
 };
 
 export default UserReimbursement;
+

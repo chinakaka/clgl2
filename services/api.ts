@@ -217,5 +217,13 @@ export const api = {
             body: JSON.stringify({ status, userName: user.name, reason })
         });
         return handleResponse(res);
+    },
+
+    deleteReimbursement: async (id: string, userId: string): Promise<void> => {
+        const res = await fetch(`${API_BASE}/reimbursements/${id}?userId=${userId}`, {
+            method: 'DELETE'
+        });
+        return handleResponse(res);
     }
+
 };

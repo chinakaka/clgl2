@@ -629,12 +629,43 @@ app.put('/api/reimbursements/:id/status', async (req, res) => {
 
     await db.run(`UPDATE reimbursements SET ${updates} WHERE id = ?`, ...params);
 
+
     const updated = await db.get('SELECT * FROM reimbursements WHERE id = ?', id);
     res.json({
         ...updated,
         attachments: updated.attachments ? JSON.parse(updated.attachments) : []
     });
 });
+
+app.delete('/api/reimbursements/:id', async (req, res) => {
+    try {
+        const userId = req.query.userId as string;
+        const id = req.params.id;
+        const db = getDB();
+
+        if (!userId) {
+            return res.status(400).json({ error: 'Missing userId for verification' });
+        }
+
+        const reimbursement = await db.get('SELECT * FROM reimbursements WHERE id = ?', id);
+        if (!reimbursement) return res.status(404).json({ error: 'Reimbursement not found' });
+
+        if (reimbursement.userId !== userId) {
+            return res.status(403).json({ error: 'Unauthorized to delete this reimbursement' });
+        }
+
+        if (reimbursement.status !== 'PENDING') {
+            return res.status(400).json({ error: 'Only pending reimbursements can be deleted' });
+        }
+
+        await db.run('DELETE FROM reimbursements WHERE id = ?', id);
+        res.json({ success: true, message: 'Reimbursement deleted' });
+    } catch (error: any) {
+        console.error('Delete Reimbursement Error:', error);
+        res.status(500).json({ error: 'Internal server error: ' + error.message });
+    }
+});
+
 
 
 app.listen(PORT, () => {
